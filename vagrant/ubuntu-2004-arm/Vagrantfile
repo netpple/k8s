@@ -1,0 +1,33 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+BOX_IMAGE = "jeffnoxon/ubuntu-20.04-arm64"
+BOX_VERSION = "1.0.0"
+HOST_NAME = "ubuntu2004"
+
+Vagrant.configure("2") do |config|
+  config.vm.box = BOX_IMAGE
+  config.vm.box_version = BOX_VERSION
+
+  config.vm.define HOST_NAME do |subconfig|
+    subconfig.vm.hostname = HOST_NAME
+    subconfig.vm.network :private_network, ip: "192.168.101.2"
+    subconfig.vm.provider :parallels do |v|
+      v.memory = 2048
+      v.cpus = 2
+    end
+    subconfig.vm.provision :shell, privileged: true, env: {},  inline: $pre_install
+
+ end
+end
+
+
+# privileged: true (root)
+$pre_install = <<-SCRIPT
+export DEBIAN_FRONTEND=noninteractive
+echo ">>>> pre-install <<<<"
+apt-get -qq update
+apt-get -qq -y install gcc make pkg-config libseccomp-dev jq tree
+SCRIPT
+
+
